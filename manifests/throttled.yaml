@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: &app throttled
+  labels:
+    app: *app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: *app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: *app
+    spec:
+      hostNetwork: true
+      containers:
+        - image: quay.io/alexeldeib/throttled:latest
+          imagePullPolicy: Always
+          command: ["/throttled"]
+          name: *app
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          # securityContext:
+          #   privileged: true
+          #   capabilities:
+          #     add: ["SYS_RAWIO"]
+          volumeMounts:
+            - name: disk
+              mountPath: "/etc/kubernetes"
+              readOnly: true
+          #   - name: sda
+          #     mountPath: "/mnt/sda"
+      volumes:
+        - name: disk
+          hostPath:
+            path: "/etc/kubernetes"
+      #   - name: sda
+      #     hostPath:
+      #       path: "/dev/sda"
+      #       type: BlockDevice

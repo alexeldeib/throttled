@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+metadata:
+  name: throttled
+build:
+  artifacts:
+    - image: quay.io/alexeldeib/throttled
+      context: .
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+      - ./manifests/throttled.yaml
