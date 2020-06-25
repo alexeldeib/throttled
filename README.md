@@ -1,7 +1,6 @@
 # throttled
 
-This project aims to simplify measure IOPS and bandwidth utilization on
-Azure VMs.
+Simple IOPS and throughput monitoring for Azure VMs.
 
 ## what it does
 
