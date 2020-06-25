@@ -1,14 +1,24 @@
+use eyre::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::fs::File;
+use std::io::Read;
 
-pub fn new() -> anyhow::Result<CloudProviderConfig> {
-    let contents: String = fs::read_to_string("/etc/kubernetes/azure.json")?;
-    let result: CloudProviderConfig = serde_json::from_str::<CloudProviderConfig>(&contents)?;
+pub fn new() -> Result<CloudProviderConfig> {
+    let mut bytes = Vec::new();
+    File::open("/etc/kubernetes/azure.json")
+        .unwrap()
+        .read_to_end(&mut bytes)
+        .unwrap();
+
+    let result: CloudProviderConfig = serde_json::from_slice(&bytes)
+        .wrap_err_with(|| "failed to parse resource skus from response")?;
+
     Ok(result)
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+// #[serde(default = "Default::default")]
 pub struct CloudProviderConfig {
     pub cloud: String,
     pub tenant_id: String,
@@ -29,9 +39,9 @@ pub struct CloudProviderConfig {
     pub cloud_provider_backoff: bool,
     pub cloud_provider_backoff_retries: i64,
     pub cloud_provider_backoff_duration: i64,
-    pub cloud_provider_ratelimit: bool,
+    pub cloud_provider_ratelimit: Option<bool>,
     #[serde(rename = "cloudProviderRateLimitQPS")]
-    pub cloud_provider_rate_limit_qps: i64,
+    pub cloud_provider_rate_limit_qps: Option<i64>,
     pub cloud_provider_rate_limit_bucket: i64,
     #[serde(rename = "cloudProviderRatelimitQPSWrite")]
     pub cloud_provider_ratelimit_qpswrite: i64,

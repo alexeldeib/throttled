@@ -1,6 +1,7 @@
+use eyre::Result;
 use serde::{Deserialize, Serialize};
 
-pub async fn new() -> anyhow::Result<Metadata> {
+pub async fn new() -> Result<Metadata> {
     let res = reqwest::Client::new()
         .get("http://169.254.169.254/metadata/instance")
         .header("Metadata", "true")
@@ -68,7 +69,7 @@ pub struct PublicKey {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StorageProfile {
-    pub data_disks: Vec<::serde_json::Value>,
+    pub data_disks: Vec<DataDisk>,
     pub image_reference: ImageReference,
     pub os_disk: OsDisk,
 }
@@ -81,6 +82,21 @@ pub struct ImageReference {
     pub publisher: String,
     pub sku: String,
     pub version: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DataDisk {
+    pub caching: String,
+    pub create_option: String,
+    #[serde(rename = "diskSizeGB")]
+    pub disk_size_gb: String,
+    pub image: Image,
+    pub lun: String,
+    pub managed_disk: ManagedDisk,
+    pub name: String,
+    pub vhd: Vhd,
+    pub write_accelerator_enabled: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

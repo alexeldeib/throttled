@@ -16,6 +16,7 @@ spec:
         app: *app
     spec:
       hostNetwork: true
+      nodeName: aks-nodepool1-42777760-vmss000002
       containers:
         - image: quay.io/alexeldeib/throttled:latest
           imagePullPolicy: Always
@@ -23,23 +24,26 @@ spec:
           name: *app
           resources:
             limits:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 250m
+              memory: 250Mi
+            requests:
+              cpu: 50m
+              memory: 50m
           # securityContext:
           #   privileged: true
           #   capabilities:
           #     add: ["SYS_RAWIO"]
           volumeMounts:
-            - name: disk
+            - name: azure
               mountPath: "/etc/kubernetes"
               readOnly: true
-          #   - name: sda
-          #     mountPath: "/mnt/sda"
+            - name: disk
+              mountPath: "/dev/disk/azure/scsi1"
+              readOnly: true
       volumes:
-        - name: disk
+        - name: azure
           hostPath:
             path: "/etc/kubernetes"
-      #   - name: sda
-      #     hostPath:
-      #       path: "/dev/sda"
-      #       type: BlockDevice
+        - name: disk
+          hostPath:
+            path: "/dev/disk/azure/scsi1"

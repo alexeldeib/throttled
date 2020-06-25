@@ -1,6 +1,7 @@
+use eyre::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-pub async fn new(client_id: &str) -> anyhow::Result<OAuthResponse> {
+pub async fn get_msi_token(client_id: &str) -> Result<OAuthResponse> {
     let res = reqwest::Client::new()
         .get("http://169.254.169.254/metadata/identity/oauth2/token")
         .header("Metadata", "true")
@@ -10,9 +11,14 @@ pub async fn new(client_id: &str) -> anyhow::Result<OAuthResponse> {
             ("resource", "https://management.azure.com/"),
         ])
         .send()
-        .await?
-        .json::<OAuthResponse>()
-        .await?;
+        .await
+        .wrap_err_with(|| "failed to send token request request")?
+        .text()
+        .await
+        .wrap_err_with(|| "failed to fetch oauth token response")?;
+
+    let res: OAuthResponse = serde_json::from_str(&res[..])
+        .wrap_err_with(|| "failed to deserialize oauth token response")?;
 
     Ok(res)
 }
