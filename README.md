@@ -6,7 +6,8 @@ utilization as a percentage of total uncached limits. Note that ratios
 may be greater than 1 with caching enabled, and may briefly peak above 1
 before encountering throttling.
 
-Log output:
+## Log output
+
 ```
 vm: VirtualMachine {
     name: "Standard_D8s_v3",
@@ -42,7 +43,12 @@ disks: {
 }
 ```
 
-Prometheus metrics:
+## Prometheus metrics
+
+(note that iops and bandwidth as raw numbers are available through many
+sources, they are here only as a sanity check against the ratios since
+they need to be collected anyway for calculation. It's possible to only
+expose the limits as fully static metrics to optimize resource usage).
 ```
 # HELP bandwidth_gauge Gauge counting point-in-time throughput for a given device or host
 # TYPE bandwidth_gauge gauge
