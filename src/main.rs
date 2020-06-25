@@ -183,9 +183,9 @@ fn main() -> Result<()> {
         // .filter(resource::with_disk_size(os_disk_size))
         // .collect::<Vec<Disk>>();
 
-        println!("skus: {:#?}", skus);
+        println!("vm: {:#?}", vm_sku);
+        println!("disks: {:#?}", skus);
         // println!("disks: {:#?}", disk_skus);
-        println!("vms: {:#?}", vm_skus);
 
         let r = Registry::new();
 

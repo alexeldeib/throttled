@@ -24,18 +24,6 @@ pub async fn list_skus(token: &str, subscription_id: &str) -> Result<ResourceLis
     Ok(res)
 }
 
-pub fn with_name(name: String) -> impl Fn(&Resource) -> bool {
-    move |res: &Resource| res.name == name
-}
-
-pub fn with_location(location: String) -> impl Fn(&Resource) -> bool {
-    move |res: &Resource| res.locations.len() > 0 && res.locations[0] == location
-}
-
-pub fn with_resource_type(resource_type: String) -> impl Fn(&Resource) -> bool {
-    move |res: &Resource| res.resource_type == resource_type
-}
-
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResourceList {
@@ -189,8 +177,4 @@ impl TryFrom<Resource> for Disk {
 
         Ok(sku)
     }
-}
-
-pub fn with_disk_size(size: u64) -> impl Fn(&Disk) -> bool {
-    move |sku: &Disk| size <= sku.max_size_gb && size > sku.min_size_gb
 }
