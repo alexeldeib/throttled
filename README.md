@@ -6,7 +6,7 @@ utilization as a percentage of total uncached limits. Note that ratios
 may be greater than 1 with caching enabled, and may briefly peak above 1
 before encountering throttling.
 
-Log output
+Log output:
 ```
 vm: VirtualMachine {
     name: "Standard_D8s_v3",
