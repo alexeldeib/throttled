@@ -175,6 +175,7 @@ throughput_ratio{device="/dev/sda"} 0.000313
 throughput_ratio{device="/dev/sdc"} 0
 throughput_ratio{device="/dev/sdd"} 0
 throughput_ratio{device="TOTAL"} 0.000326
+```
 
 ## what it does
 
