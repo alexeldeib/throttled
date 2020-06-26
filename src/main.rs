@@ -1,7 +1,5 @@
 use eyre::{Context, Result};
 use hyper::Server;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 mod imds;
 mod iostat;
@@ -12,7 +10,7 @@ mod resource;
 mod server;
 
 use oauth::OAuthResponse;
-use resource::{get_disk_sku, get_limits, get_vm_sku, list_disk_skus, Disk, VirtualMachine};
+use resource::{get_disk_sku, get_limits, get_vm_sku, list_disk_skus};
 use server::MetricService;
 
 fn main() -> Result<()> {
