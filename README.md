@@ -1,3 +1,5 @@
+[![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](#experimental)
+
 # throttled
 
 > NOTE: this daemon currently requires Managed Identities to
@@ -8,6 +10,13 @@ and machine limits through instance metadata and exposes current
 utilization as a percentage of total uncached limits. Note that ratios
 may be greater than 1 with caching enabled, and may briefly peak above 1
 before encountering throttling.
+
+## Experimental
+
+Code is new and may change or be removed in future versions. Please try
+it out and provide feedback. Feel free to open issues for discussion,
+bugs, or desired functionality.
+
 
 ## Log output
 
