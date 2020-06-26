@@ -53,7 +53,7 @@ each detected disk.
 
 ## Prometheus metrics
 
-Note that iops and bandwidth as raw numbers are available through many
+Note that IOPS and bandwidth as raw numbers are available through many
 sources, they are here only as a sanity check against the ratios since
 they need to be collected anyway for calculation. It's possible to only
 expose the limits as fully static metrics to optimize resource usage
