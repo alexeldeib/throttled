@@ -10,7 +10,7 @@ pub fn new() -> Result<HashMap<String, Disk>> {
         .arg("-xty")
         .arg("-o")
         .arg("JSON")
-        .arg("2")
+        .arg("1")
         .arg("1")
         .output()?;
 
@@ -127,4 +127,16 @@ pub struct Disk {
     #[serde(rename = "aqu-sz")]
     pub average_request_size: f64,
     pub util: f64,
+}
+
+impl Disk {
+    pub fn iops(&self) -> f64 {
+        self.reads_per_second + self.writes_per_second + self.flushes_per_second
+    }
+
+    pub fn throughput(&self) -> f64 {
+        self.read_kilo_bytes_per_second
+            + self.write_kilo_bytes_per_second
+            + self.discard_kilo_bytes_per_second
+    }
 }

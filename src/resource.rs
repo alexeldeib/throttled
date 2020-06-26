@@ -1,7 +1,131 @@
 use eyre::{eyre, Context, Error, Result};
+use relative_path::RelativePath;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::fs;
+use std::path::PathBuf;
+
+use super::imds;
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Limits {
+    pub virtual_machine: VirtualMachine,
+    pub disks: HashMap<String, Disk>,
+}
+
+pub fn get_limits(
+    os_disk: Disk,
+    data_disks: &Vec<imds::DataDisk>,
+    disk_skus: Vec<Disk>,
+) -> Result<HashMap<String, Disk>> {
+    let mut limits: HashMap<String, Disk> = HashMap::new();
+    limits.insert("/dev/sda".to_string(), os_disk);
+
+    for disk in data_disks {
+        let size = disk.disk_size_gb.parse::<u64>()?;
+        let storage_account_type = &disk.managed_disk.storage_account_type;
+        let disk_sku = get_disk_sku(&disk_skus, &size, &storage_account_type)?;
+
+        // TODO(ace): clean this up...maybe shell to readlink -f?
+        // normalization without following the symlink seems
+        // strangely difficult.
+        let device_file = fs::read_link(format!("/dev/disk/azure/scsi1/lun{}", &disk.lun))
+            .wrap_err_with(|| "failed to read link")?;
+
+        let device_file: PathBuf =
+            RelativePath::new(&format!("/dev/disk/azure/scsi1/{}", device_file.display(),))
+                .normalize()
+                .to_path("/");
+
+        let device_file = match device_file.to_owned().into_os_string().into_string() {
+            Err(e) => {
+                return Err(eyre!(
+                    "failed to convert path to friendly udev label: {:?}; err: {:?}",
+                    &device_file,
+                    &e,
+                ))
+            }
+            Ok(s) => s,
+        };
+
+        limits.insert(device_file, disk_sku);
+    }
+
+    Ok(limits)
+}
+
+pub async fn get_vm_sku(
+    token: &str,
+    subscription_id: &str,
+    location: &str,
+    name: &str,
+) -> Result<VirtualMachine> {
+    let mut filtered = list_skus(token, subscription_id)
+        .await?
+        .value
+        .into_iter()
+        .filter(|sku| sku.resource_type == "virtualMachines")
+        .filter(|sku| sku.locations.len() > 0 && sku.locations[0] == location)
+        .filter(|sku| sku.name == name)
+        .map(|sku| VirtualMachine::try_from(sku))
+        .collect::<Result<Vec<VirtualMachine>>>()?;
+
+    match filtered.len() {
+        1 => Ok(filtered.pop().unwrap()),
+        n => {
+            return Err(eyre!(
+                "expected single matching vm sku but found {}. matches: {:#?}",
+                &n,
+                &filtered,
+            ))
+        }
+    }
+}
+
+pub async fn list_disk_skus(
+    token: &str,
+    subscription_id: &str,
+    location: &str,
+) -> Result<Vec<Disk>> {
+    list_skus(token, subscription_id)
+        .await?
+        .value
+        .into_iter()
+        .filter(|sku| sku.resource_type == "disks")
+        .filter(|sku| sku.locations.len() > 0 && sku.locations[0] == location)
+        .filter(|res| res.tier != Some("Ultra".to_string())) // Need to support ultra, it has different range-based structure
+        .map(|sku| Disk::try_from(sku))
+        .collect::<Result<Vec<Disk>>>()
+}
+
+pub fn get_disk_sku(skus: &Vec<Disk>, size: &u64, storage_account_type: &str) -> Result<Disk> {
+    let mut filtered = skus
+        .iter()
+        .filter(|sku| &sku.storage_account_type == storage_account_type)
+        .filter(|sku| size > &sku.min_size_gb && size <= &sku.max_size_gb)
+        .cloned()
+        .collect::<Vec<Disk>>();
+
+    if filtered.len() < 1 {
+        return Err(eyre!(
+            "no matching sku found for disk with size: {}, storage type: {}",
+            &size,
+            &storage_account_type,
+        ));
+    }
+
+    if filtered.len() > 1 {
+        return Err(eyre!(
+            "multiple matching sku found for disk with size: {}, storage type: {}, matches: {:#?}",
+            &size,
+            &storage_account_type,
+            &filtered,
+        ));
+    }
+
+    Ok(filtered.pop().unwrap())
+}
 
 pub async fn list_skus(token: &str, subscription_id: &str) -> Result<ResourceList> {
     let res = reqwest::Client::new()
@@ -67,7 +191,7 @@ pub struct ZoneDetail {
     pub capabilities: Vec<Capability>,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VirtualMachine {
     pub name: String,
     pub location: String,
@@ -116,7 +240,7 @@ impl TryFrom<Resource> for VirtualMachine {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Disk {
     pub location: String,
     pub storage_account_type: String,
