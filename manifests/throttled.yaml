@@ -15,7 +15,6 @@ spec:
       labels:
         app: *app
     spec:
-      nodeName: aks-nodepool1-42777760-vmss000002
       containers:
         - image: quay.io/alexeldeib/throttled:latest
           imagePullPolicy: Always
