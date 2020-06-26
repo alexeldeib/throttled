@@ -42,10 +42,6 @@ fn main() -> Result<()> {
             }
         }
 
-        // let token: OAuthResponse = oauth::get_msi_token(&azure_json.user_assigned_identity_id)
-        //     .await
-        //     .wrap_err_with(|| "failed to get msi token")?;
-
         let vm_size = meta.compute.vm_size;
         let location = azure_json.location;
 
