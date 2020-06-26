@@ -1,5 +1,8 @@
 # throttled
 
+> NOTE: this daemon currently requires Managed Identities to
+> authenticate. Service principal authentication is possible albeit unimplemented.
+
 Simple IOPS and throughput monitoring for Azure VMs. Discovers all disk
 and machine limits through instance metadata and exposes current
 utilization as a percentage of total uncached limits. Note that ratios
@@ -82,12 +85,12 @@ iops_ratio{device="TOTAL"} 0.646055
 
 # HELP throughput_bytes Gauge counting point-in-time throughput in bytes for a given device or host
 # TYPE throughput gauge
-throughput{device="/dev/loop0"} 0
-throughput{device="/dev/sda"} 10
-throughput{device="/dev/sdb"} 33072
-throughput{device="/dev/sdc"} 0
-throughput{device="/dev/sdd"} 0
-throughput{device="TOTAL"} 33082
+throughput_bytes{device="/dev/loop0"} 0
+throughput_bytes{device="/dev/sda"} 10
+throughput_bytes{device="/dev/sdb"} 33072
+throughput_bytes{device="/dev/sdc"} 0
+throughput_bytes{device="/dev/sdd"} 0
+throughput_bytes{device="TOTAL"} 33082
 
 # HELP throughput_ratio Gauge representing percentage of bandwidth limit saturated by for a given device or host. 1 means 100% of the uncached sku limit is being utilized. This value can be greater than 1 when the sku bursts or uses caching.
 # TYPE throughput_ratio gauge
@@ -95,7 +98,6 @@ throughput_ratio{device="/dev/sda"} 0
 throughput_ratio{device="/dev/sdc"} 0
 throughput_ratio{device="/dev/sdd"} 0
 throughput_ratio{device="TOTAL"} 0.000164
-[throttled-6f579886d7-r9d62 throttled]
 ```
 
 In the next example, the VM is at its uncached limits and aggressively
