@@ -143,7 +143,7 @@ pub async fn list_skus(token: &str, subscription_id: &str) -> Result<ResourceLis
         .wrap_err_with(|| "failed to receive resource skus response")?;
 
     let res: ResourceList = serde_json::from_str(&res[..])
-        .wrap_err_with(|| "failed to parse resource skus from response")?;
+        .wrap_err_with(|| format!("failed to parse resource skus from response: {}", &res))?;
 
     Ok(res)
 }

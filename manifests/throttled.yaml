@@ -29,10 +29,6 @@ spec:
             requests:
               cpu: 50m
               memory: 50m
-          # securityContext:
-          #   privileged: true
-          #   capabilities:
-          #     add: ["SYS_RAWIO"]
           volumeMounts:
             - name: azure
               mountPath: "/etc/kubernetes"

@@ -18,9 +18,33 @@ fn main() -> Result<()> {
         let azure_json = kube::new()?;
         let meta = imds::new().await?;
 
-        let token: OAuthResponse = oauth::get_msi_token(&azure_json.user_assigned_identity_id)
-            .await
-            .wrap_err_with(|| "failed to get msi token")?;
+        let token: OAuthResponse;
+
+        match azure_json.aad_client_id.as_str() {
+            "msi" => {
+                token = {
+                    oauth::get_msi_token(&azure_json.user_assigned_identity_id)
+                        .await
+                        .wrap_err_with(|| "failed to get msi token")?
+                }
+            }
+            _ => {
+                token = {
+                    oauth::get_sp_token(
+                        &azure_json.aad_client_id,
+                        &azure_json.aad_client_secret,
+                        &azure_json.tenant_id,
+                        "https://management.azure.com",
+                    )
+                    .await
+                    .wrap_err_with(|| "failed to get sp token")?
+                }
+            }
+        }
+
+        // let token: OAuthResponse = oauth::get_msi_token(&azure_json.user_assigned_identity_id)
+        //     .await
+        //     .wrap_err_with(|| "failed to get msi token")?;
 
         let vm_size = meta.compute.vm_size;
         let location = azure_json.location;

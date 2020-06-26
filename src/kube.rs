@@ -18,7 +18,7 @@ pub fn new() -> Result<CloudProviderConfig> {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-// #[serde(default = "Default::default")]
+#[serde(default = "Default::default")]
 pub struct CloudProviderConfig {
     pub cloud: String,
     pub tenant_id: String,

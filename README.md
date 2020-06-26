@@ -2,9 +2,6 @@
 
 # throttled
 
-> NOTE: this daemon currently requires Managed Identities to
-> authenticate. Service principal authentication is possible albeit unimplemented.
-
 Simple IOPS and throughput monitoring for Azure VMs. Discovers all disk
 and machine limits through instance metadata and exposes current
 utilization as a percentage of total uncached limits. Note that ratios
