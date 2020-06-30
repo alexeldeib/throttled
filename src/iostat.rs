@@ -131,12 +131,10 @@ pub struct Disk {
 
 impl Disk {
     pub fn iops(&self) -> f64 {
-        self.reads_per_second + self.writes_per_second + self.flushes_per_second
+        self.reads_per_second + self.writes_per_second
     }
 
     pub fn throughput(&self) -> f64 {
-        self.read_kilo_bytes_per_second
-            + self.write_kilo_bytes_per_second
-            + self.discard_kilo_bytes_per_second
+        self.read_kilo_bytes_per_second + self.write_kilo_bytes_per_second
     }
 }

@@ -1,6 +1,5 @@
 use eyre::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub async fn get_msi_token(client_id: &str) -> Result<OAuthResponse> {
     let res = reqwest::Client::new()
