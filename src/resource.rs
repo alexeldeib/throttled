@@ -102,7 +102,7 @@ pub async fn list_disk_skus(
 pub fn get_disk_sku(skus: &Vec<Disk>, size: &u64, storage_account_type: &str) -> Result<Disk> {
     let mut filtered = skus
         .iter()
-        .filter(|sku| &sku.storage_account_type.eq_ignore_ascii_case(storage_account_type))
+        .filter(|sku| sku.storage_account_type.eq_ignore_ascii_case(storage_account_type))
         .filter(|sku| size > &sku.min_size_gb && size <= &sku.max_size_gb)
         .cloned()
         .collect::<Vec<Disk>>();
